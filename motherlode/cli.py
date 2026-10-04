@@ -167,7 +167,7 @@ def main(argv=None):
     if not inputs:
         installs = detect_installs()
         if not installs:
-            example = "\"/Applications/The Sims 4.app\"" if sys.platform == "darwin" else "\"D:\\Games\\The Sims 4\""
+            example = "\"/Applications/EA Games/The Sims 4.app\"" if sys.platform == "darwin" else "\"D:\\Games\\The Sims 4\""
             raise SystemExit("motherlode: couldn't find The Sims 4 on this computer. "
                              "Pass the game's location as an argument, for example: motherlode " + example)
         inputs = installs[:1]

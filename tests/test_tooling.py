@@ -86,6 +86,18 @@ class Layouts(TempDir):
             '\t"1"\t\t"E:\\\\Games"\n}\n').encode())
         self.assertEqual(steam_libraries(steam), [steam, "D:\\SteamLibrary", "E:\\Games"])
 
+    def test_mac_app_inside_an_applications_subfolder(self):
+        import motherlode.game as game
+        applications = self.path("Applications")
+        self.make_mac(os.path.join(applications, "EA Games", "The Sims 4.app"))
+        os.makedirs(os.path.join(applications, "EA Games", "The Sims 4 Packs"))
+        saved = game.MAC_APPLICATION_DIRS
+        game.MAC_APPLICATION_DIRS = (applications,)
+        try:
+            self.assertEqual(game.detect_installs("darwin"), [os.path.join(applications, "EA Games", "The Sims 4.app")])
+        finally:
+            game.MAC_APPLICATION_DIRS = saved
+
     def test_detect_on_unknown_platform_returns_a_list(self):
         self.assertIsInstance(detect_installs("plan9"), list)
 

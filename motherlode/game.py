@@ -1,5 +1,6 @@
 """Finds Sims 4 installations and the compiled script archives inside them."""
 
+import glob
 import os
 import re
 import string
@@ -22,6 +23,7 @@ MAC_LAYOUT = {
     "generated.zip": ("Contents", "Python"),
 }
 MAC_APP = "The Sims 4.app"
+MAC_APPLICATION_DIRS = ("/Applications", "~/Applications")
 SKIP_DIRS = re.compile(r"^(Delta|__Installer|EP\d+|GP\d+|SP\d+|FP\d+|Support|_CommonRedist)$", re.IGNORECASE)
 
 WINDOWS_RELATIVE_INSTALLS = (
@@ -127,7 +129,11 @@ def windows_candidates():
 
 def mac_candidates():
     home = os.path.expanduser("~")
-    candidates = [os.path.join("/Applications", MAC_APP), os.path.join(home, "Applications", MAC_APP)]
+    candidates = []
+    for applications in MAC_APPLICATION_DIRS:
+        applications = os.path.expanduser(applications)
+        candidates.append(os.path.join(applications, MAC_APP))
+        candidates.extend(sorted(glob.glob(os.path.join(applications, "*", MAC_APP))))
     steam = os.path.join(home, "Library", "Application Support", "Steam")
     for library in steam_libraries(steam):
         candidates.append(os.path.join(library, "steamapps", "common", "The Sims 4"))
