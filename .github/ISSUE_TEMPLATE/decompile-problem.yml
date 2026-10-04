@@ -1,0 +1,39 @@
+name: Decompile problem
+description: A function didn't verify, the output looks wrong, or Motherlode stopped with an error
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you ran and what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: report
+    attributes:
+      label: Report lines
+      description: Paste the entries for the affected files from motherlode-report.txt, or the error Motherlode printed.
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+  - type: input
+    id: game
+    attributes:
+      label: Game version
+      description: Leave blank if you are not sure.
+  - type: input
+    id: version
+    attributes:
+      label: Motherlode version
+      description: The first line of motherlode-report.txt.
