@@ -22,35 +22,72 @@ For comparison, the same check applied to decompyle3 3.9.3 on the game's own cod
 
 A full install decompiles in about a minute and a half on two cores.
 
-## Requirements
+## Quick start
 
-Python 3.7, the same version the game runs. If you build script mods you already have it. Motherlode has no other dependencies.
+Download this repository (**Code > Download ZIP** on GitHub) and unzip it anywhere.
 
-## Usage
+**Windows:** double-click `Motherlode.cmd`.
 
-Install it from GitHub:
+**macOS:** right-click `Motherlode.command` and choose **Open**. The first time, macOS asks whether to open a file downloaded from the internet. If Finder won't run it, open Terminal and run `bash ` followed by the file's path, which you can get by dragging the file into the Terminal window.
+
+Either way, Motherlode finds The Sims 4 on your computer, decompiles it into a `decompiled` folder next to the launcher, and opens that folder when it's done. Run it again after a game patch to refresh it.
+
+It looks where the EA app, Origin and Steam install the game (including Steam libraries on other drives), and on Windows it also checks the install location EA records in the registry. If your copy is somewhere else, drag the game folder onto `Motherlode.cmd` on Windows, or on a Mac run `bash Motherlode.command "/path/to/The Sims 4.app"` in Terminal. The same works for a `.ts4script` file, to decompile a script mod; its files go in a folder named after the mod.
+
+### Python 3.7
+
+Motherlode runs on Python 3.7, the version the game itself uses, because it checks its work with that exact compiler. If you build script mods you already have it.
+
+- **Windows:** if Python 3.7 isn't installed, `Motherlode.cmd` downloads a private copy of Python 3.7.9 published by the Python Software Foundation on nuget.org, checks it against a pinned SHA-256 checksum, and keeps it in `%LOCALAPPDATA%\Motherlode`. Nothing is installed system-wide.
+- **macOS:** if Python 3.7 isn't installed, `Motherlode.command` offers to download the official Python 3.7.9 installer from python.org. It confirms the installer is signed by the Python Software Foundation, then opens it. On Apple silicon Macs, macOS will offer to install Rosetta the first time Python runs.
+
+## What you get
+
+```
+decompiled/
+    scripts/       the game's scripts, one .py per module, laid out as the game imports them
+    stdlib/        EA's copy of the Python standard library
+    stubs/         .pyi stubs for engine modules built into the game executable
+    motherlode-report.txt
+    motherlode-report.json
+    pyrightconfig.json, .vscode/, .idea/, ts4-python.iml
+```
+
+`scripts` merges the game's `core`, `simulation` and `generated` archives. They never contain the same file or folder, and the game puts all three on its import path, so `import sims4.log` and `from buffs.buff import Buff` resolve here the same way they do in the game.
+
+`motherlode-report.txt` lists every function that did not verify, by file, and `motherlode-report.json` has the same information for tools.
+
+### Code completion in PyCharm and VS Code
+
+Open the `decompiled` folder as a project. It comes configured:
+
+- **VS Code** (Pylance) and other Pyright-based editors read `pyrightconfig.json`, which sets Python 3.7, makes `scripts` the import root and points at the stubs.
+- **PyCharm** reads `.idea/` and `ts4-python.iml`, which mark `scripts` and `stubs` as source roots. Choose any Python 3.7 interpreter when PyCharm asks.
+
+The game's scripts import about 40 modules that exist only inside the game executable, such as `_math`, `_resourceman` and `_sims4_collections`. Motherlode writes a stub for each one, listing the names the scripts use from it, so those imports resolve and the names show up in completion. It also writes stubs for the protocol buffer modules the scripts import by their short names. On the current game, this takes Pyright from 301 unresolved-import warnings down to 15, all for debugging tools the shipped game never loads.
+
+To get the same completion in your own mod project, add the `decompiled/scripts` folder and the `decompiled/stubs` folder to it:
+
+- **VS Code:** set `"python.analysis.extraPaths": ["<path>/decompiled/scripts"]` and `"python.analysis.stubPath": "<path>/decompiled/stubs"` in your project's `.vscode/settings.json`.
+- **PyCharm:** under **Settings > Project > Project Structure**, add `decompiled` as a content root, then mark `scripts` and `stubs` as **Sources**.
+
+### Command line
 
 ```
 py -3.7 -m pip install git+https://github.com/BigBadBleuCheese/Motherlode
+motherlode
 ```
 
-Point it at your game folder:
+With no arguments, `motherlode` decompiles the installed game into `./decompiled`. You can also run it from a clone without installing (`py -3.7 -m motherlode`). Other options:
 
-```
-motherlode "C:\Program Files\EA Games\The Sims 4" -o decompiled
-```
-
-You can also run it from a clone without installing (`py -3.7 -m motherlode ...`), and you can give it individual `.zip` archives, folders of `.pyc` files, or single `.pyc` files instead of the install folder.
-
-The output folder gets one `.py` file per script, laid out the way the game's archives are (`decompiled/simulation/buffs/buff.py`, and so on), plus two reports:
-
-- `motherlode-report.txt` lists every function that did not verify, by file.
-- `motherlode-report.json` has the same information for tools.
-
-Options:
-
+- Inputs: a game folder or `The Sims 4.app`, script archives (`.zip` or `.ts4script`), folders of `.pyc` files, or single `.pyc` files.
+- `-o FOLDER` sets the output folder.
 - `-j N` sets the number of worker processes (default: one less than your CPU count).
+- `--list-installs` prints the installs Motherlode can find and exits.
+- `--open` opens the output folder when finished.
 - `--no-search` skips the retry pass described below, which is faster but verifies slightly less.
+
+Rerunning into the same folder replaces the `scripts`, `stdlib` and `stubs` folders from the previous run, so files a patch removed don't linger. Motherlode only does this in folders that hold one of its reports.
 
 ## How it works
 
@@ -72,7 +109,7 @@ Statements are written on the same line numbers they occupy in EA's source files
 - **Comments, docstrings and `assert` statements.** The game is compiled with `-OO`, which removes docstrings and asserts from the bytecode entirely.
 - **Formatting.** Names, constants and structure come back exactly. Quoting style, parentheses and line wrapping are Motherlode's own.
 - **Some unreachable code.** Code after a `return` is partly removed by the compiler, so a few functions whose dead code was only half removed can't be reproduced exactly. They behave the same and are listed in the report.
-- **Native modules.** A few modules ship as compiled machine code (`.pyd` files under `Game\Bin\Python\DLLs`), not Python bytecode, so no Python decompiler can recover them.
+- **Engine modules.** Modules like `_math` are part of the game executable, not Python, so there is no source to recover. The generated stubs stand in for them.
 
 ## Using it as a library
 
