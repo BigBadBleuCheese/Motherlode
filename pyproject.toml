@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "motherlode"
+version = "0.1.0"
+description = "A verifying decompiler for The Sims 4's Python 3.7 scripts"
+readme = "README.md"
+requires-python = ">=3.7,<3.8"
+license = {text = "MIT"}
+authors = [{name = "Daniel Henry"}]
+classifiers = [
+    "Programming Language :: Python :: 3.7",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Disassemblers",
+]
+
+[project.urls]
+Homepage = "https://github.com/BigBadBleuCheese/Motherlode"
+
+[project.scripts]
+motherlode = "motherlode.cli:main"
+
+[tool.setuptools]
+packages = ["motherlode"]
