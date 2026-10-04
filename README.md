@@ -1,6 +1,18 @@
-# Motherlode
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <img alt="Motherlode: a decompiler for The Sims 4's Python scripts that checks its own work" src="docs/logo-light.svg" width="640">
+  </picture>
+</p>
 
-A decompiler for The Sims 4's Python scripts that proves its own output.
+<p align="center">
+  <a href="https://github.com/BigBadBleuCheese/Motherlode/actions/workflows/tests.yml"><img alt="Tests" src="https://github.com/BigBadBleuCheese/Motherlode/actions/workflows/tests.yml/badge.svg"></a>
+  <a href="#results"><img alt="Code objects verified: 99.93%" src="https://img.shields.io/badge/verified-99.93%25-1f883d"></a>
+  <img alt="Python 3.7" src="https://img.shields.io/badge/python-3.7-3776ab?logo=python&amp;logoColor=white">
+  <img alt="Windows and macOS" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS-555">
+  <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-555">
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-555"></a>
+</p>
 
 The game ships its simulation code as compiled Python 3.7 bytecode inside a handful of `.zip` archives. Decompilers have been turning that back into source for years, but they get some functions wrong, and when they do, nothing tells you: the output compiles, it reads fine, and it behaves differently from the game.
 
@@ -96,6 +108,13 @@ With no arguments, `motherlode` decompiles the installed game into `./decompiled
 Rerunning into the same folder replaces the `scripts`, `stdlib` and `stubs` folders from the previous run, so files a patch removed don't linger. Motherlode only does this in folders that hold one of its reports.
 
 ## How it works
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/how-it-works-dark.svg">
+    <img alt="Game bytecode is decompiled, recompiled with CPython 3.7 at -OO, and compared code object by code object. A mismatch sends it back to try the next possible structure; a match is verified, and running out of options puts it in the report." src="docs/how-it-works-light.svg" width="820">
+  </picture>
+</p>
 
 Most decompilers match bytecode against a grammar of known patterns. When the compiler's optimizer rearranges jumps in a way the grammar doesn't expect, they either give up or quietly pick the wrong structure. The classic example in the game's code is `if a and b: return x` followed by `return y`, which a grammar-based decompiler can nest the wrong way, so the function returns `None` when `a` is false.
 
