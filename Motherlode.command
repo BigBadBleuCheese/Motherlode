@@ -44,4 +44,5 @@ if [ -z "$PYTHON" ]; then
     exit 0
 fi
 
-PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}" "$PYTHON" -m motherlode -o "$ROOT/decompiled" --open "$@"
+OUTPUT="${MOTHERLODE_OUTPUT:-$ROOT/decompiled}"
+PYTHONPATH="$ROOT${PYTHONPATH:+:$PYTHONPATH}" "$PYTHON" -m motherlode -o "$OUTPUT" --open "$@"

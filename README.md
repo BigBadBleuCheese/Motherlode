@@ -24,15 +24,21 @@ A full install decompiles in about a minute and a half on two cores.
 
 ## Quick start
 
-Download this repository (**Code > Download ZIP** on GitHub) and unzip it anywhere.
+**Windows:** download this repository (**Code > Download ZIP** on GitHub), unzip it anywhere, and double-click `Motherlode.cmd`. It decompiles into a `decompiled` folder next to the launcher.
 
-**Windows:** double-click `Motherlode.cmd`.
+**macOS:** open Terminal and paste:
 
-**macOS:** right-click `Motherlode.command` and choose **Open**. The first time, macOS asks whether to open a file downloaded from the internet. If Finder won't run it, open Terminal and run `bash ` followed by the file's path, which you can get by dragging the file into the Terminal window.
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/BigBadBleuCheese/Motherlode/master/tools/macos.sh)"
+```
 
-Either way, Motherlode finds The Sims 4 on your computer, decompiles it into a `decompiled` folder next to the launcher, and opens that folder when it's done. Run it again after a game patch to refresh it.
+That downloads the latest Motherlode into `~/Library/Application Support/Motherlode` and decompiles into `~/Documents/Motherlode`. Run the same command again after a game patch; it updates Motherlode too.
 
-It looks where the EA app, Origin and Steam install the game (including Steam libraries on other drives), and on Windows it also checks the install location EA records in the registry. If your copy is somewhere else, drag the game folder onto `Motherlode.cmd` on Windows, or on a Mac run `bash Motherlode.command "/path/to/The Sims 4.app"` in Terminal. The same works for a `.ts4script` file, to decompile a script mod; its files go in a folder named after the mod.
+Downloading the ZIP and double-clicking `Motherlode.command` doesn't work on current macOS. Gatekeeper blocks scripts downloaded through a browser, and on macOS 15 and later right-click > **Open** no longer gets past it. If you already have the ZIP, run `bash Motherlode.command` from that folder in Terminal instead, or allow it once under **System Settings > Privacy & Security > Open Anyway**.
+
+Either way, Motherlode finds The Sims 4 on your computer, decompiles it, and opens the output folder when it's done.
+
+It looks where the EA app, Origin and Steam install the game (including Steam libraries on other drives), and on Windows it also checks the install location EA records in the registry. If your copy is somewhere else, drag the game folder onto `Motherlode.cmd` on Windows, or on a Mac run `bash Motherlode.command "/path/to/The Sims 4.app"` from the Motherlode folder. The same works for a `.ts4script` file, to decompile a script mod; its files go in a folder named after the mod.
 
 ### Python 3.7
 
